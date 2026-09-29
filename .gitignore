@@ -1,0 +1,25 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+.idea/
+.vscode/
+
+# Secrets — NEVER commit these
+.env
+*.env
+functions/.secret.local
+functions/.runtimeconfig.json
+google-services.json
+GoogleService-Info.plist
+lib/firebase_options.dart
+
+# Backend
+functions/node_modules/
+functions/lib/
+lib-test/
+.firebaserc
