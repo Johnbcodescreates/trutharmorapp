@@ -4,18 +4,23 @@ import 'package:provider/provider.dart';
 import '../app/app_state.dart';
 import '../app/navigation.dart';
 import '../data/categories.dart';
+import '../models/assessment_draft.dart';
 import '../models/risk.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
+import '../widgets/example_content_card.dart';
 import '../widgets/resource_card.dart';
 import '../widgets/risk_widgets.dart';
 import 'verify_safely_screen.dart';
 
 /// TRUTHARMOR ASSESSMENT — the explainable result.
 class ResultsScreen extends StatelessWidget {
-  const ResultsScreen({super.key, required this.assessment});
+  const ResultsScreen({super.key, required this.assessment, this.demoDraft});
   final Assessment assessment;
+
+  /// Set only for DEMO EXAMPLES, so viewers can see what was checked.
+  final AssessmentDraft? demoDraft;
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +65,30 @@ class ResultsScreen extends StatelessWidget {
 
           if (a.summary.isNotEmpty) ...[
             Text(a.summary, style: t.bodyLarge),
+            const SizedBox(height: Gap.md),
+          ],
+          if (demoDraft != null) ...[
+            SectionCard(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.md + 2, vertical: Gap.xs),
+              child: Theme(
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  initiallyExpanded: true,
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: const EdgeInsets.only(bottom: Gap.md),
+                  leading: const Icon(Icons.science_outlined, color: Color(0xFF6D28D9)),
+                  title: Text('The example that was checked', style: t.titleMedium),
+                  subtitle: Text(demoDraft!.demoTitle ?? '', style: t.bodySmall),
+                  children: [
+                    ExampleContentCard(
+                      categoryId: demoDraft!.categoryId,
+                      text: demoDraft!.text,
+                      answers: demoDraft!.answers,
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: Gap.md),
           ],
           if (a.aiUnavailableReason != null) ...[

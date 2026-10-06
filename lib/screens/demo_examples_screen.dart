@@ -6,6 +6,7 @@ import '../data/demo_examples.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
+import 'demo_example_detail_screen.dart';
 
 /// DEMO EXAMPLES — safe, fictional scenarios for demonstrations.
 class DemoExamplesScreen extends StatelessWidget {
@@ -22,7 +23,7 @@ class DemoExamplesScreen extends StatelessWidget {
           const SizedBox(height: Gap.sm + 4),
           Text(
             'These scenarios are entirely fictional and contain no real personal information. '
-            'They run through the same analysis as a real check.',
+            'Tap one to read the full message, then analyze it with the same engine as a real check.',
             style: t.bodyLarge,
           ),
           const SizedBox(height: Gap.lg),
@@ -30,7 +31,7 @@ class DemoExamplesScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm + 2),
               child: SectionCard(
-                onTap: () => Nav.analyze(context, e.toDraft()),
+                onTap: () => Nav.push(context, DemoExampleDetailScreen(example: e)),
                 child: Row(
                   children: [
                     Icon(Categories.byId(e.categoryId).icon, color: AppColors.blue, size: 28),
@@ -49,10 +50,17 @@ class DemoExamplesScreen extends StatelessWidget {
                             ],
                           ),
                           Text(e.subtitle, style: t.bodySmall),
+                          const SizedBox(height: 4),
+                          Text(
+                            '"${e.text.replaceAll(RegExp(r'\s+'), ' ').trim()}"',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: t.bodySmall?.copyWith(fontStyle: FontStyle.italic, color: AppColors.text),
+                          ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.play_arrow_rounded, color: AppColors.blue),
+                    const Icon(Icons.chevron_right_rounded, color: AppColors.mutedText, size: 28),
                   ],
                 ),
               ),

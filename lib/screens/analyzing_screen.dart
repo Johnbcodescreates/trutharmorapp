@@ -46,7 +46,14 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> with SingleTickerProv
       await state.record(assessment);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => ResultsScreen(assessment: assessment)),
+        MaterialPageRoute(
+          builder: (_) => ResultsScreen(
+            assessment: assessment,
+            // Only demo examples carry their content to the results screen;
+            // real user content is never kept after analysis.
+            demoDraft: widget.draft.isDemoExample ? widget.draft : null,
+          ),
+        ),
       );
     } catch (_) {
       if (!mounted) return;
