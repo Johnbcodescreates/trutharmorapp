@@ -67,8 +67,8 @@ class CheckMethodScreen extends StatelessWidget {
               icon: Icons.image_outlined,
               title: 'Upload a screenshot',
               subtitle: ocrSupported
-                  ? 'We read the text on your phone. You review it before anything is analyzed.'
-                  : 'Available on Android and iPhone.',
+                  ? 'We read the text on your device. You review it before anything is analyzed.'
+                  : 'Not available on this device. Please paste the text instead.',
               onTap: () => ScreenshotFlow.start(context, categoryId: category.id),
             ),
             if (ocrSupported)

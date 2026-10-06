@@ -94,7 +94,7 @@ class _QuickScanScreenState extends State<QuickScanScreen> {
           if (!ocr)
             Padding(
               padding: const EdgeInsets.only(top: Gap.sm),
-              child: Text('Screenshot reading is available on Android and iPhone.', style: t.bodySmall),
+              child: Text('Screenshot reading is not available on this device.', style: t.bodySmall),
             ),
           const SizedBox(height: Gap.lg),
           Text('Or paste a message, email, or link', style: t.titleMedium),

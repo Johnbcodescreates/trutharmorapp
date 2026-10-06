@@ -20,7 +20,7 @@ class ScreenshotFlow {
   /// (a friendly message is shown in that case).
   static Future<String?> pickAndRead(BuildContext context, {ImageSource source = ImageSource.gallery}) async {
     if (!_ocr.isSupported) {
-      _showMessage(context, 'Screenshot reading works on Android and iPhone. On this device, please paste the text instead.');
+      _showMessage(context, 'Screenshot reading is not available on this device. Please paste the text instead.');
       return null;
     }
 
@@ -89,7 +89,12 @@ class ScreenshotFlow {
               children: [
                 SizedBox(width: 28, height: 28, child: CircularProgressIndicator(strokeWidth: 3)),
                 SizedBox(width: Gap.md + 4),
-                Expanded(child: Text('Reading the text in your screenshot…', style: TextStyle(fontSize: 17))),
+                Expanded(
+                  child: Text(
+                    'Reading the text in your screenshot…\nThe first time can take up to a minute.',
+                    style: TextStyle(fontSize: 17),
+                  ),
+                ),
               ],
             ),
           ),

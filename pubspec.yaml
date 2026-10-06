@@ -18,6 +18,8 @@ dependencies:
   image_picker: ^1.1.2
   # On-device OCR (Android + iOS). Text never leaves the phone during OCR.
   google_mlkit_text_recognition: ^0.15.0
+  # Browser APIs, used to run Tesseract.js OCR in the web version.
+  web: ^1.1.0
   # Stores settings + scan-history METADATA only (never message content).
   shared_preferences: ^2.3.2
   # Opens official verification websites / phone numbers.

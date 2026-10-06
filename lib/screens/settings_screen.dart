@@ -65,7 +65,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const Divider(),
                 const BulletList([
-                  'Screenshots are read on your phone and are never uploaded or saved.',
+                  'Screenshots are read on your device and are never uploaded or saved.',
                   'Messages and answers are never stored in history.',
                   'Social Security numbers, card numbers, passwords, and codes are hidden before any AI analysis.',
                   'The AI service key is kept on a secure server — never inside the app.',
