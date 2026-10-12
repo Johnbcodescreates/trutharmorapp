@@ -31,7 +31,9 @@ export const analyze = onRequest(
     timeoutSeconds: 60,
     memory: "256MiB",
     maxInstances: 10,
-    cors: false, // Mobile apps don't need CORS; keeps browsers from calling it cross-site.
+    // Browsers may call this only from the local dev server (localhost) and
+    // Firebase Hosting sites. Mobile apps don't use CORS at all.
+    cors: [/^https?:\/\/localhost(:\d+)?$/, /^https:\/\/[a-z0-9-]+\.web\.app$/, /^https:\/\/[a-z0-9-]+\.firebaseapp\.com$/],
   },
   async (req, res) => {
     res.set("Cache-Control", "no-store");
