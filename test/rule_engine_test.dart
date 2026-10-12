@@ -57,6 +57,14 @@ void main() {
       expect(a.signals.map((s) => s.id), contains('domain_mismatch'));
     });
 
+    test('voice-clone "family emergency" script is flagged without claiming the voice is fake', () {
+      final a = assess('ai_message',
+          text: "Grandma, it's me. I was arrested and need bail money right now. Don't tell Mom. Use gift cards.");
+      expect(a.signals.map((s) => s.id), contains('family_impersonation'));
+      expect(a.level, RiskLevel.high);
+      expect(a.signals.map((s) => s.id), isNot(contains('fast_affection')));
+    });
+
     test('youth signals only apply in the youth category', () {
       const text = "don't tell your parents, add me on snap";
       final youth = assess('youth', text: text);
@@ -107,6 +115,7 @@ void main() {
       'demo_bank': RiskLevel.high,
       'demo_irs': RiskLevel.high,
       'demo_romance': RiskLevel.high,
+      'demo_voice': RiskLevel.high,
       'demo_website': RiskLevel.high,
       'demo_youth': RiskLevel.high,
       'demo_low': RiskLevel.low,

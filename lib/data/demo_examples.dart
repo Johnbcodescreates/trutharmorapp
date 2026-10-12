@@ -80,6 +80,19 @@ const List<DemoExample> kDemoExamples = [
     answers: {'agency': 'IRS', 'contact_method': 'Phone call'},
   ),
   DemoExample(
+    id: 'demo_voice',
+    title: 'Voice message: "Grandma, it\'s me"',
+    subtitle: 'Transcript of a voicemail from a "grandchild" in trouble',
+    categoryId: 'ai_message',
+    featured: true,
+    text: "Grandma? Hi, it's me. Sorry, my voice sounds weird, I have a really bad cold. I'm in trouble. "
+        'I was in a car accident and the police arrested me. I need \$3,000 for bail right now. '
+        "Please don't tell Mom and Dad, they'll be so mad at me. My lawyer, Mr. Daniel Price, is going to call you "
+        'in a few minutes and explain how to send it. He said you can use gift cards from the store. '
+        'Please hurry. I love you.',
+    answers: {'contact_method': 'Phone call', 'new_number': YesNo.yes},
+  ),
+  DemoExample(
     id: 'demo_romance',
     title: 'Romance scam',
     subtitle: 'An online relationship that turns to money',

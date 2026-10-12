@@ -1,5 +1,5 @@
 /// How the user provided the information.
-enum InputSource { screenshot, photo, pastedText, url, questions, quickScan, demo }
+enum InputSource { screenshot, photo, voice, pastedText, url, questions, quickScan, demo }
 
 /// Everything the user has provided so far, before analysis.
 ///

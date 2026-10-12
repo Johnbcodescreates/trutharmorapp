@@ -134,3 +134,33 @@ test("rate limiter", () => {
   assert.ok(!rl.allow("a", 2));
   assert.ok(rl.allow("a", 1500));
 });
+
+import { handleTranscribe } from "../src/transcribe";
+
+test("transcribe: sends audio to OpenAI and returns text", async () => {
+  let sentModel = "";
+  let auth = "";
+  const impl = (async (_url: string, init?: { body?: FormData; headers?: Record<string, string> }) => {
+    sentModel = String(init?.body?.get("model"));
+    auth = init?.headers?.Authorization ?? "";
+    return new Response(JSON.stringify({ text: "Grandma, it's me. I'm in trouble." }), { status: 200 });
+  }) as unknown as typeof fetch;
+  const audio = Buffer.from("fake-audio-bytes").toString("base64");
+  const res = await handleTranscribe(
+    { action: "transcribe", audio_base64: audio, mime_type: "audio/mpeg" },
+    { openAiKey: "k", model: "gpt-transcribe", fetchImpl: impl },
+  );
+  assert.equal(res.status, 200);
+  assert.equal(res.body.text, "Grandma, it's me. I'm in trouble.");
+  assert.equal(sentModel, "gpt-transcribe");
+  assert.equal(auth, "Bearer k");
+});
+
+test("transcribe: rejects missing audio, bad types, and upstream failures", async () => {
+  const ok = (async () => new Response("{}", { status: 500 })) as unknown as typeof fetch;
+  const deps = { openAiKey: "k", model: "m", fetchImpl: ok };
+  assert.equal((await handleTranscribe({ action: "transcribe" }, deps)).status, 400);
+  assert.equal((await handleTranscribe({ audio_base64: "AAAA", mime_type: "image/png" }, deps)).status, 400);
+  assert.equal((await handleTranscribe({ audio_base64: "not base64!!", mime_type: "audio/mpeg" }, deps)).status, 400);
+  assert.equal((await handleTranscribe({ audio_base64: "AAAA", mime_type: "audio/mpeg" }, deps)).status, 502);
+});

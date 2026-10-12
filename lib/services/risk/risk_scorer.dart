@@ -39,6 +39,8 @@ const List<ComboRule> kComboRules = [
   ComboRule(label: 'Asked to move money for someone else', allOf: {'money_mule'}, floor: 60),
   ComboRule(label: 'Remote-access software requested', allOf: {'remote_access'}, floor: 60),
   ComboRule(label: 'Remote access requested by a claimed bank', allOf: {'remote_access', 'bank_impersonation'}, floor: 85),
+  ComboRule(label: 'A "family member" in trouble asking for money', allOf: {'family_impersonation'}, anyOf: _moneyAsks, floor: 80),
+  ComboRule(label: 'A "family member" asking you to keep it secret', allOf: {'family_impersonation', 'secrecy'}, floor: 75),
   ComboRule(label: 'Investment pitch from an online relationship', allOf: {'investment_request'}, anyOf: {'fast_affection', 'remote_story', 'avoids_verification'}, floor: 75),
   ComboRule(label: 'Money requested by someone who avoids verification', allOf: {'avoids_verification'}, anyOf: _moneyAsks, floor: 75),
   // Youth safety

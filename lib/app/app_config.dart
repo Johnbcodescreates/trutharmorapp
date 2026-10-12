@@ -1,6 +1,7 @@
 import '../services/ai/analysis_service.dart';
 import '../services/ai/backend_analysis_service.dart';
 import '../services/ai/demo_analysis_service.dart';
+import '../services/transcription/transcription_service.dart';
 
 /// Build-time configuration. NO SECRETS LIVE HERE.
 ///
@@ -19,5 +20,11 @@ class AppConfig {
   static AnalysisService createAnalysisService() {
     if (isDemoMode) return const DemoAnalysisService();
     return BackendAnalysisService(endpoint: Uri.parse(backendUrl));
+  }
+
+  /// Voice messages are transcribed by the same secure backend endpoint.
+  static TranscriptionService createTranscriptionService() {
+    if (isDemoMode) return const UnavailableTranscriptionService();
+    return BackendTranscriptionService(endpoint: Uri.parse(backendUrl));
   }
 }

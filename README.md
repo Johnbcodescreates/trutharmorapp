@@ -29,6 +29,9 @@ do next*, and *how to verify safely* through independent, official sources.
 - **9 categories** driven by one reusable *category engine*: Job, Bank/Payment, Tax/Government, Email/Text,
   Website/Link, Online Relationship, **Child & Teen Online Safety**, Property/Home, AI/Suspicious Message.
 - **Quick Scan** — screenshot, photo, pasted text, or link → TruthArmor suggests a category → you confirm.
+- **Voice messages** — upload a voicemail or voice note; the secure backend turns it into text
+  (OpenAI speech-to-text), you review it, and TruthArmor checks what the caller is asking for. It does **not**
+  claim to detect AI-cloned voices.
 - **On-device OCR** (Google ML Kit) with a mandatory *review and edit* step. Screenshots never leave the phone.
 - **Hybrid analysis engine** — fixed-weight rules + your answers + AI context + link reputation.
   A single AI number can never decide the result.

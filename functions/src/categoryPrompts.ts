@@ -56,8 +56,11 @@ Do not repeat or describe explicit content in your output.`,
 
   ai_message: `Category: AI OR SUSPICIOUS MESSAGE.
 Focus on manipulation and scam patterns: urgency, emotional pressure, impersonation (including of family members, e.g.
-"it's me, I have a new number"), emergencies, unusual requests, financial or credential requests, secrecy, remote access,
+"it's me, I have a new number", or a cloned voice of a relative), emergencies, unusual requests, financial or credential requests, secrecy, remote access,
 inconsistent details, and suspicious links.
 You CANNOT reliably determine whether a message was written by AI. If relevant, say: "AI authorship cannot be determined
-with certainty. This assessment focuses on scam and manipulation patterns."`,
+with certainty. This assessment focuses on scam and manipulation patterns."
+The content may be an automatic transcript of a voice message or voicemail, so expect small transcription errors.
+NEVER claim to know whether a voice was cloned or AI-generated. Focus on what the caller asks for, and recommend
+hanging up and calling the person back on a number already known, or using a family safe word.`,
 };

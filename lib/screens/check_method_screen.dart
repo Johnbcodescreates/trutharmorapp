@@ -13,10 +13,15 @@ import 'article_screen.dart';
 import 'input/paste_text_screen.dart';
 import 'input/questions_screen.dart';
 import 'input/screenshot_flow.dart';
+import 'input/voice_message_screen.dart';
 
 /// "How would you like to check it?"
 class CheckMethodScreen extends StatelessWidget {
   const CheckMethodScreen({super.key, required this.category});
+
+  /// Categories where scammers commonly use phone calls and voicemails.
+  static const _voiceCategories = {'ai_message', 'bank', 'government', 'romance', 'job'};
+
   final ScanCategory category;
 
   @override
@@ -79,6 +84,13 @@ class CheckMethodScreen extends StatelessWidget {
                 onTap: () => ScreenshotFlow.start(context, categoryId: category.id, source: ImageSource.camera),
               ),
           ],
+          if (_voiceCategories.contains(category.id))
+            _MethodCard(
+              icon: Icons.graphic_eq_rounded,
+              title: 'Voice message or voicemail',
+              subtitle: 'Upload a recording. We turn it into text so you can review it before analysis.',
+              onTap: () => Nav.push(context, VoiceMessageScreen(category: category)),
+            ),
           _MethodCard(
             icon: isLink ? Icons.link_rounded : Icons.content_paste_rounded,
             title: isLink ? 'Paste the link' : 'Paste information',

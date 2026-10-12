@@ -274,11 +274,22 @@ const List<SignalDefinition> kSignalCatalog = [
     excludedCategories: _youth,
   ),
   SignalDefinition(
+    id: 'family_impersonation',
+    group: SignalGroup.impersonation,
+    weight: 22,
+    reason: 'The caller claims to be a family member in trouble (a common voice-cloning and "grandparent" scam)',
+    simpleReason: 'Someone says they are your relative and in trouble. Scammers can copy voices',
+    action: 'Hang up and call your relative back on the number you already have, or use a family safe word',
+    simpleAction: 'Hang up and call your family member on their usual number',
+    excludedCategories: _youth,
+  ),
+  SignalDefinition(
     id: 'fast_affection',
     group: SignalGroup.behavioral,
     weight: 12,
     reason: 'Strong feelings were expressed very quickly',
     simpleReason: 'They said "I love you" or similar very fast',
+    onlyCategories: {'romance'},
   ),
   SignalDefinition(
     id: 'avoids_verification',

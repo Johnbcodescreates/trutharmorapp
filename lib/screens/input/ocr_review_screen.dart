@@ -58,16 +58,20 @@ class _OcrReviewScreenState extends State<OcrReviewScreen> {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     final hasText = _controller.text.trim().isNotEmpty;
+    final isVoice = widget.draft.source == InputSource.voice;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Review the text')),
+      appBar: AppBar(title: Text(isVoice ? 'Review the transcript' : 'Review the text')),
       body: PageBody(
         children: [
-          Text('We found the following text.', style: t.headlineSmall),
+          Text(isVoice ? "Here's what was said." : 'We found the following text.', style: t.headlineSmall),
           const SizedBox(height: Gap.xs),
           Text(
-            'Please review it before analysis. Screenshot reading can make mistakes — fix anything that looks wrong, '
-            'delete anything private, or add missing text.',
+            isVoice
+                ? 'Please review it before analysis. Automatic transcription can mishear words or names — fix anything '
+                    'that looks wrong, delete anything private, or add anything that was missed.'
+                : 'Please review it before analysis. Screenshot reading can make mistakes — fix anything that looks wrong, '
+                    'delete anything private, or add missing text.',
             style: t.bodyLarge,
           ),
           const SizedBox(height: Gap.md),
@@ -79,7 +83,7 @@ class _OcrReviewScreenState extends State<OcrReviewScreen> {
             keyboardType: TextInputType.multiline,
             style: t.bodyLarge,
             decoration: InputDecoration(
-              hintText: 'The text from your screenshot will appear here.',
+              hintText: isVoice ? 'The words from the recording will appear here.' : 'The text from your screenshot will appear here.',
               suffixIcon: hasText
                   ? IconButton(
                       tooltip: 'Delete all text',

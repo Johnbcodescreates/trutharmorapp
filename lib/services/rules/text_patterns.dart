@@ -111,7 +111,7 @@ final Map<String, List<RegExp>> kTextPatterns = {
 
   // Urgency / pressure
   'urgency': [
-    _p(r'\b(urgent(ly)?|immediately|right away|act now|asap|within (24|48|12|2) hours|today only|final (notice|warning)|last chance|expires? (today|soon|in))\b'),
+    _p(r'\b(urgent(ly)?|immediately|right away|right now|hurry|act now|asap|within (24|48|12|2) hours|today only|final (notice|warning)|last chance|expires? (today|soon|in))\b'),
     _p(r"\b(don'?t|do not) (wait|delay|hang up)\b"),
   ],
   'emotional_pressure': [
@@ -128,7 +128,13 @@ final Map<String, List<RegExp>> kTextPatterns = {
 
   // Behavioral
   'secrecy': [
-    _p(r"\b(keep (this|it) (between us|secret|confidential|private)|don'?t tell (anyone|your (family|bank|kids|children|spouse))|do not tell (anyone|the bank)|our (little )?secret)\b"),
+    _p(r"\b(keep (this|it) (between us|secret|confidential|private)|don'?t tell (anyone|mom|dad|my (mom|dad|parents)|grandpa|grandma|your (family|bank|kids|children|spouse))|do not tell (anyone|the bank)|our (little )?secret)\b"),
+  ],
+  'family_impersonation': [
+    _p(r"\b(grandma|grandpa|grandmother|grandfather|nana|papa|mom|dad|auntie|uncle)[,!.?]?\s+(hi[,!]?\s+)?it'?s me\b"),
+    _p(r"\bit'?s (me|your (grandson|granddaughter|son|daughter|nephew|niece))\b.{0,80}\b(trouble|accident|arrested|jail|hospital|help)\b"),
+    _p(r"\b(i|i've|i have) (got )?a new (phone|number)\b|\blost my phone\b"),
+    _p(r"\bmy voice (sounds|is) (weird|different|funny|strange)\b"),
   ],
   'fast_affection': [
     _p(r"\b(i love you|soul ?mate|my (queen|king|wife|husband)|never felt this way|destiny|meant to be)\b"),

@@ -5,6 +5,7 @@ import 'app/app.dart';
 import 'app/app_config.dart';
 import 'app/app_state.dart';
 import 'services/assessment_pipeline.dart';
+import 'services/transcription/transcription_service.dart';
 
 /// TruthArmor — Pause. Verify. Protect.
 Future<void> main() async {
@@ -21,6 +22,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider<AppState>.value(value: state),
         Provider<AssessmentPipeline>.value(value: pipeline),
+        Provider<TranscriptionService>.value(value: AppConfig.createTranscriptionService()),
       ],
       child: const TruthArmorApp(),
     ),

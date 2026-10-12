@@ -63,7 +63,9 @@ The backend is a Firebase Cloud Function. It holds the OpenAI key as a **secret*
    firebase functions:secrets:set OPENAI_API_KEY
    firebase functions:secrets:set SAFE_BROWSING_API_KEY    # type "none" to skip link reputation
    ```
-   Optional: choose the model (default `gpt-4o-mini`) by creating `functions/.env` with `OPENAI_MODEL=...`.
+   Optional: choose the models (defaults `gpt-4o-mini` for analysis and `gpt-transcribe` for voice messages) by
+   creating `functions/.env` with `OPENAI_MODEL=...` and/or `TRANSCRIBE_MODEL=...`. If `firebase deploy` asks
+   for these values, just press Enter to accept the defaults.
 4. Test and deploy:
    ```bash
    cd functions && npm install && npm test && cd ..

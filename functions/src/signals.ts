@@ -9,7 +9,7 @@ export const ALL_SIGNAL_IDS = [
   "check_overpayment", "equipment_purchase", "money_mule", "investment_request", "too_good_to_be_true",
   "government_impersonation", "bank_impersonation", "domain_mismatch", "nonofficial_email", "arrest_threat",
   "legal_threat", "urgency", "emotional_pressure", "emergency_claim", "platform_move", "unsolicited_contact",
-  "secrecy", "fast_affection", "avoids_verification", "remote_story", "instant_hire", "chat_only_interview",
+  "secrecy", "family_impersonation", "fast_affection", "avoids_verification", "remote_story", "instant_hire", "chat_only_interview",
   "signature_requested", "ownership_change_claim", "attachment_or_download", "remote_access",
   "shortened_url", "ip_address_url", "lookalike_domain", "punycode_domain", "unusual_tld", "insecure_http",
   "suspicious_url_structure", "known_malicious_url",

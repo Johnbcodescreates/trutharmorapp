@@ -11,6 +11,7 @@ import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import 'input/category_confirm_sheet.dart';
 import 'input/screenshot_flow.dart';
+import 'input/voice_message_screen.dart';
 
 /// QUICK SCAN — screenshot, photo, pasted text, URL, or message.
 /// TruthArmor suggests a category, and the user confirms it.
@@ -90,6 +91,26 @@ class _QuickScanScreenState extends State<QuickScanScreen> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: Gap.sm + 4),
+          SectionCard(
+            onTap: () => Nav.push(context, const VoiceMessageScreen(category: Categories.aiMessage, quickScan: true)),
+            child: Row(
+              children: [
+                const Icon(Icons.graphic_eq_rounded, size: 30, color: AppColors.blue),
+                const SizedBox(width: Gap.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Voice message', style: t.titleSmall),
+                      Text('Check a voicemail or voice note', style: t.bodySmall),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right_rounded, color: AppColors.mutedText),
+              ],
+            ),
           ),
           if (!ocr)
             Padding(

@@ -46,6 +46,16 @@ TruthArmor provides a **pattern-based risk assessment**. It clearly tells users:
   a child. Future family features are built on education, consent, trusted-adult involvement, and privacy.
 - The AI is instructed not to repeat or describe explicit content.
 
+## Voice messages
+
+- TruthArmor **does not** claim to detect AI-generated or cloned voices. No tool can do that reliably today, and a
+  wrong answer either way could cause harm.
+- Instead it transcribes the message and looks for what voice scams have in common: a "family member" in trouble,
+  an emergency, secrecy, and urgent requests for money (bail, gift cards, wire transfers).
+- Results always recommend hanging up and calling the person back on a known number, or using a family safe word.
+- Audio must be sent to the server for transcription (unlike screenshots). TruthArmor does not store it; it is
+  processed by OpenAI under OpenAI's API data policies. Users see and can edit the transcript before analysis.
+
 ## Privacy
 
 - **Minimum data:** the app never asks for SSNs, passwords, codes, or full account numbers, and warns users not to
