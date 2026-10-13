@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
             // ── Header ──
             Row(
               children: [
-                const TruthArmorLogo(markSize: 38, showTagline: true),
+                const TruthArmorLogo(markSize: 52, showTagline: true),
                 const Spacer(),
                 if (AppConfig.isDemoMode) const Pill.demo('DEMO MODE'),
               ],

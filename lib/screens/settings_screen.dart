@@ -167,7 +167,7 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: Gap.xl),
 
           // ── About ──
-          const Center(child: TruthArmorLogo(markSize: 34, showTagline: true)),
+          const Center(child: TruthArmorLogo(markSize: 44, showTagline: true)),
           const SizedBox(height: Gap.sm),
           Center(
             child: Text(

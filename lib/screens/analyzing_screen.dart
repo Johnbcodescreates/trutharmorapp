@@ -87,7 +87,7 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> with SingleTickerProv
           Center(
             child: ScaleTransition(
               scale: Tween(begin: 0.92, end: 1.04).animate(CurvedAnimation(parent: _pulse, curve: Curves.easeInOut)),
-              child: const TruthArmorMark(size: 96),
+              child: const TruthArmorMark(size: 120),
             ),
           ),
           const SizedBox(height: Gap.lg),

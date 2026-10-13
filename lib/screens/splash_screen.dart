@@ -50,11 +50,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: const Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TruthArmorMark.onDark(size: 96),
+                TruthArmorMark.onDark(size: 150),
                 SizedBox(height: 20),
-                Text(
-                  'TruthArmor',
-                  style: TextStyle(color: AppColors.white, fontSize: 34, fontWeight: FontWeight.w800, letterSpacing: -0.5),
+                Text.rich(
+                  TextSpan(children: [
+                    TextSpan(text: 'TRUTH', style: TextStyle(color: AppColors.white)),
+                    TextSpan(text: 'ARMOR', style: TextStyle(color: Color(0xFF5EA2FF))),
+                  ]),
+                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                 ),
                 SizedBox(height: 8),
                 Text(
