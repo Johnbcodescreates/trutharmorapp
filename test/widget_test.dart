@@ -23,25 +23,32 @@ Widget _wrap(Widget child, AppState state) => MultiProvider(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('Home screen shows the main question and Quick Scan', (tester) async {
+  testWidgets('Home screen shows the main question and Quick Scan', timeout: const Timeout(Duration(minutes: 1)),
+      (tester) async {
     final state = AppState();
     await state.load();
     await tester.pumpWidget(_wrap(const AppShell(), state));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.text('What would you like to check?'), findsOneWidget);
     expect(find.text('QUICK SCAN'), findsOneWidget);
     expect(find.text('Home'), findsOneWidget);
   });
 
-  testWidgets('Results screen shows risk, reasons, actions and disclaimer', (tester) async {
+  testWidgets('Results screen shows risk, reasons, actions and disclaimer', timeout: const Timeout(Duration(minutes: 1)),
+      (tester) async {
     final state = AppState();
     await state.load();
     const pipeline = AssessmentPipeline(ai: DemoAnalysisService(delay: Duration.zero));
-    final assessment = await pipeline.run(kDemoExamples.firstWhere((e) => e.id == 'demo_irs').toDraft());
+    // Screen tests freeze time, so run the (timer-based) demo analysis with real time.
+    final assessment = (await tester.runAsync(
+      () => pipeline.run(kDemoExamples.firstWhere((e) => e.id == 'demo_irs').toDraft()),
+    ))!;
 
     await tester.pumpWidget(_wrap(ResultsScreen(assessment: assessment), state));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.text('HIGH RISK'), findsOneWidget);
     expect(assessment.checkedText, isNotEmpty);
