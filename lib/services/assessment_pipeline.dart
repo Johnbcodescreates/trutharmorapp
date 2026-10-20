@@ -3,6 +3,7 @@ import '../models/ai_analysis.dart';
 import '../models/assessment_draft.dart';
 import '../models/risk.dart';
 import 'ai/analysis_service.dart';
+import 'evidence_summary.dart';
 import 'privacy/redactor.dart';
 import 'risk/risk_scorer.dart';
 import 'rules/rule_engine.dart';
@@ -82,36 +83,23 @@ class AssessmentPipeline {
       isDemoExample: draft.isDemoExample,
     );
 
-    // Use the simple AI summary in Simple Mode when one is available.
-    if (simpleMode && aiResult != null && aiResult.simpleSummary.isNotEmpty) {
-      return _withSummary(result, aiResult.simpleSummary);
-    }
-    return result;
-  }
+    final evidence = EvidenceSummary.build(
+      category: category,
+      assessment: result,
+      urls: ruleResult.urls,
+      ai: aiResult,
+      source: draft.source,
+      textLength: text.trim().length,
+      answeredCount: draft.answeredCount,
+    );
 
-  Assessment _withSummary(Assessment a, String summary) => Assessment(
-        id: a.id,
-        createdAt: a.createdAt,
-        categoryId: a.categoryId,
-        title: a.title,
-        score: a.score,
-        level: a.level,
-        confidence: a.confidence,
-        headline: a.headline,
-        summary: summary,
-        reasons: a.reasons,
-        simpleReasons: a.simpleReasons,
-        actions: a.actions,
-        simpleActions: a.simpleActions,
-        breakdown: a.breakdown,
-        signals: a.signals,
-        scoreSteps: a.scoreSteps,
-        aiUsed: a.aiUsed,
-        isDemoAi: a.isDemoAi,
-        aiUnavailableReason: a.aiUnavailableReason,
-        additionalConcerns: a.additionalConcerns,
-        reassuringFactors: a.reassuringFactors,
-        redactionCount: a.redactionCount,
-        isDemoExample: a.isDemoExample,
-      );
+    return result.copyWith(
+      // Use the simple AI summary in Simple Mode when one is available.
+      summary: simpleMode && aiResult != null && aiResult.simpleSummary.isNotEmpty ? aiResult.simpleSummary : null,
+      // Kept in memory only for highlighting — never saved or sent anywhere.
+      checkedText: text,
+      knownFacts: evidence.known,
+      unknowns: evidence.unknown,
+    );
+  }
 }

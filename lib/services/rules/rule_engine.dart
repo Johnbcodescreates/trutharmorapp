@@ -41,6 +41,20 @@ class RuleEngine {
       found.putIfAbsent(id, () => DetectedSignal(definition: def, source: source, evidence: evidence));
     }
 
+    // Exact places in the text behind each sign (for the Deception Breakdown).
+    final spans = <String, List<MatchSpan>>{};
+    void mark(String id, int start, int end) {
+      if (!found.containsKey(id) || end <= start) return;
+      final list = spans.putIfAbsent(id, () => []);
+      if (list.length < 6 && !list.any((s) => s.start == start && s.end == end)) list.add(MatchSpan(start, end));
+    }
+
+    void markAll(String id, RegExp re) {
+      for (final m in re.allMatches(text)) {
+        mark(id, m.start, m.end);
+      }
+    }
+
     // 1) Structured answers (most reliable — the user told us directly).
     String? claimedOrg;
     String? senderEmail;
@@ -118,6 +132,11 @@ class RuleEngine {
             break;
           }
         }
+        if (found.containsKey(id)) {
+          for (final p in patterns) {
+            markAll(id, p);
+          }
+        }
       });
       urls.addAll(urlAnalyzer.extractUrls(text));
 
@@ -125,6 +144,10 @@ class RuleEngine {
       final items = requestedPersonalItems(text);
       if (items.length >= 4) {
         add('bulk_personal_info', SignalSource.text, 'Asks for: ${items.join(', ')}');
+        for (final re in _personalItems.values) {
+          final m = re.firstMatch(text);
+          if (m != null) mark('bulk_personal_info', m.start, m.end);
+        }
       }
 
       // Pay far above normal for the work (hourly, or daily converted to hourly).
@@ -139,6 +162,8 @@ class RuleEngine {
         if (pay >= 100 || (pay >= 45 && noExperience)) {
           add('unrealistic_pay', SignalSource.text,
               'Offers about \$${pay.round()}/hour${noExperience ? ' with no experience required' : ''}');
+          markAll('unrealistic_pay', _hourly);
+          markAll('unrealistic_pay', _daily);
         }
       }
     }
@@ -169,12 +194,15 @@ class RuleEngine {
       final d = urlAnalyzer.domainFromEmail(email);
       if (d == null) continue;
       final tld = d.split('.').last;
+      final at = text.indexOf(email);
       if (UrlAnalyzer.unusualTlds.contains(tld)) {
         add('unusual_tld', SignalSource.text, 'Sender address uses an uncommon ending ($email)');
+        if (at >= 0) mark('unusual_tld', at, at + email.length);
       }
       final imitated = urlAnalyzer.impersonatedBrand(d);
       if (imitated != null) {
         add('domain_mismatch', SignalSource.text, 'Email domain "$d" imitates "$imitated"');
+        if (at >= 0) mark('domain_mismatch', at, at + email.length);
       }
     }
 
@@ -187,6 +215,8 @@ class RuleEngine {
         final d = urlAnalyzer.domainFromEmail(email);
         if (d != null && urlAnalyzer.isFreeEmailDomain(d)) {
           add('nonofficial_email', SignalSource.text, 'Business contact uses a personal email ($email)');
+          final at = text.indexOf(email);
+          if (at >= 0) mark('nonofficial_email', at, at + email.length);
           break;
         }
       }
@@ -194,12 +224,17 @@ class RuleEngine {
 
     // 4) Link analysis.
     for (final url in urls) {
+      final at = text.indexOf(url);
       for (final f in urlAnalyzer.analyze(url)) {
         add(f.signalId, SignalSource.link, f.evidence);
+        if (at >= 0) mark(f.signalId, at, at + url.length);
       }
     }
 
-    return RuleResult(signals: found.values.toList(), urls: urls.toList());
+    return RuleResult(
+      signals: [for (final s in found.values) s.withSpans(spans[s.id] ?? const [])],
+      urls: urls.toList(),
+    );
   }
 
   static final RegExp _requestVerb = RegExp(

@@ -96,6 +96,34 @@ void main() {
       }
     });
 
+    test('Deception Breakdown: signals record where they appear in the text', () {
+      const text = 'FINAL NOTICE: Unusual activity has been detected on your account. To avoid suspension, '
+          'verify your details within 24 hours: https://secure-account-verify.co/login';
+      final category = Categories.byId('message');
+      final result = engine.evaluate(category: category, text: text, answers: const {});
+      final quoted = <String>{
+        for (final s in result.signals)
+          for (final r in s.spans) text.substring(r.start, r.end).toLowerCase(),
+      };
+      expect(quoted, contains('final notice'));
+      expect(quoted.any((q) => q.contains('unusual activity')), isTrue);
+      expect(quoted.any((q) => q.contains('secure-account-verify.co')), isTrue);
+      for (final s in result.signals) {
+        for (final r in s.spans) {
+          expect(r.start, greaterThanOrEqualTo(0));
+          expect(r.end, lessThanOrEqualTo(text.length));
+        }
+      }
+    });
+
+    test('pipeline adds known facts, unknowns, and keeps the checked text in memory', () async {
+      const pipeline = AssessmentPipeline(ai: DemoAnalysisService(delay: Duration.zero));
+      final a = await pipeline.run(kDemoExamples.firstWhere((e) => e.id == 'demo_irs').toDraft());
+      expect(a.checkedText, contains('Internal Revenue Service'));
+      expect(a.knownFacts, isNotEmpty);
+      expect(a.unknowns.any((u) => u.contains('warrant')), isTrue);
+    });
+
     test('hourly pay parsing', () {
       expect(RuleEngine.highestHourlyPay(r'Earn $1,000/hr or $25 per hour'), 1000);
       expect(RuleEngine.highestHourlyPay('no pay listed'), isNull);

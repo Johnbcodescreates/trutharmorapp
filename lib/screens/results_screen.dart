@@ -9,7 +9,9 @@ import '../models/risk.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
+import '../widgets/deception_breakdown.dart';
 import '../widgets/example_content_card.dart';
+import '../widgets/protect_widgets.dart';
 import '../widgets/resource_card.dart';
 import '../widgets/risk_widgets.dart';
 import 'verify_safely_screen.dart';
@@ -31,6 +33,7 @@ class ResultsScreen extends StatelessWidget {
     final reasons = simple ? a.simpleReasons : a.reasons;
     final actions = simple ? a.simpleActions : a.actions;
     final found = a.breakdown.where((b) => b.level != GroupLevel.none).toList();
+    final breakdown = DeceptionBreakdown(text: a.checkedText, signals: a.signals);
     final showHelp = a.level == RiskLevel.high ||
         a.level == RiskLevel.elevated ||
         (category.id == 'youth' && a.level != RiskLevel.low);
@@ -141,11 +144,40 @@ class ResultsScreen extends StatelessWidget {
           ],
           const SizedBox(height: Gap.lg),
 
-          // ── What to do next ──
-          const SectionTitle('What to do next', icon: Icons.task_alt_rounded),
-          SectionCard(
-            child: BulletList(actions, icon: Icons.check_circle_outline_rounded, iconColor: AppColors.blue, iconSize: 20),
-          ),
+          // ── Deception Breakdown: the exact words that triggered it ──
+          if (breakdown.hasContent) ...[
+            const SectionTitle('Deception breakdown', icon: Icons.manage_search_rounded),
+            breakdown,
+            const SizedBox(height: Gap.lg - 8),
+          ],
+
+          // ── What we know / what we can't confirm ──
+          if (a.knownFacts.isNotEmpty || a.unknowns.isNotEmpty) ...[
+            const SectionTitle('What we know — and what we don\'t', icon: Icons.fact_check_outlined),
+            SectionCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (a.knownFacts.isNotEmpty) ...[
+                    Text(simple ? 'What we can see' : 'What we can see in what you shared', style: t.titleSmall),
+                    const SizedBox(height: 4),
+                    BulletList(a.knownFacts, icon: Icons.visibility_outlined, iconColor: AppColors.navy, iconSize: 18),
+                  ],
+                  if (a.unknowns.isNotEmpty) ...[
+                    const SizedBox(height: Gap.sm + 2),
+                    Text('What we can\'t confirm', style: t.titleSmall),
+                    const SizedBox(height: 4),
+                    BulletList(a.unknowns, icon: Icons.help_outline_rounded, iconColor: AppColors.mutedText, iconSize: 18),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: Gap.lg),
+          ],
+
+          // ── Protect me now (what to do next) ──
+          const SectionTitle('Protect me now: what to do next', icon: Icons.task_alt_rounded),
+          ProtectChecklist(actions: actions),
           const SizedBox(height: Gap.md),
           WideButton(
             label: 'HOW TO VERIFY SAFELY',
@@ -153,6 +185,13 @@ class ResultsScreen extends StatelessWidget {
             onPressed: () => Nav.push(context, VerifySafelyScreen(category: category)),
           ),
           const SizedBox(height: Gap.lg),
+
+          // ── Already responded? ──
+          if (a.level != RiskLevel.low) ...[
+            const SectionTitle('Already responded?', icon: Icons.healing_outlined),
+            AlreadyRespondedCard(category: category, signalIds: a.signals.map((s) => s.id).toSet()),
+            const SizedBox(height: Gap.lg),
+          ],
 
           if (showHelp) ...[
             SectionTitle(category.id == 'youth' ? 'Get help from trusted adults' : 'Where to get help',

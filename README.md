@@ -35,6 +35,12 @@ do next*, and *how to verify safely* through independent, official sources.
 - **On-device OCR** (Google ML Kit) with a mandatory *review and edit* step. Screenshots never leave the phone.
 - **Hybrid analysis engine** — fixed-weight rules + your answers + AI context + link reputation.
   A single AI number can never decide the result.
+- **Deception Breakdown** — the checked message with the exact phrases, links, and claims that triggered each
+  warning highlighted and numbered, plus how each trick works.
+- **What we know / what we can't confirm** — every result separates observable evidence from what text alone
+  can't establish.
+- **Protect Me Now** checklist and **Already responded?** recovery steps (paid, shared card/bank details, shared
+  SSN, clicked a link, shared a code, gave remote access — plus youth-specific guidance).
 - **Transparent results** — risk level, 3–5 reasons, 3–5 actions, a breakdown by risk area, a separate
   *analysis confidence*, "How was this calculated?", and the standard disclaimer.
 - **How to Verify Safely** — category-specific steps plus official help and reporting resources.

@@ -44,9 +44,23 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('HIGH RISK'), findsOneWidget);
-    expect(find.text('WHY THIS WAS FLAGGED'), findsOneWidget);
-    expect(find.text('WHAT TO DO NEXT'), findsOneWidget);
-    await tester.scrollUntilVisible(find.textContaining('It is not a guarantee'), 400);
+    expect(assessment.checkedText, isNotEmpty);
+    expect(assessment.knownFacts, isNotEmpty);
+    expect(assessment.unknowns, isNotEmpty);
+
+    // The results page is long; scroll to each section in order.
+    for (final section in [
+      'WHY THIS WAS FLAGGED',
+      'DECEPTION BREAKDOWN',
+      'WHAT WE KNOW — AND WHAT WE DON\'T',
+      'PROTECT ME NOW: WHAT TO DO NEXT',
+      'ALREADY RESPONDED?',
+    ]) {
+      await tester.scrollUntilVisible(find.text(section), 300, scrollable: find.byType(Scrollable).first);
+      expect(find.text(section), findsOneWidget, reason: section);
+    }
+    await tester.scrollUntilVisible(find.textContaining('It is not a guarantee'), 300,
+        scrollable: find.byType(Scrollable).first);
     expect(find.textContaining('It is not a guarantee'), findsOneWidget);
   });
 }

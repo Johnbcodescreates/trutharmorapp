@@ -60,6 +60,29 @@ extension SignalGroupX on SignalGroup {
         SignalGroup.context => 'Context',
       };
 
+  /// How this kind of trick works — used in the Deception Breakdown.
+  String get whyItMatters => switch (this) {
+        SignalGroup.identity => 'Private details like these can be used to steal your identity or take over your accounts.',
+        SignalGroup.financial => 'Scammers prefer payments that are fast and very hard to get back.',
+        SignalGroup.impersonation => 'Pretending to be someone you trust makes you less likely to double-check.',
+        SignalGroup.urgency => 'Pressure and fear are meant to make you act before you stop to verify.',
+        SignalGroup.source => 'Where it came from does not match who it claims to be.',
+        SignalGroup.behavioral => 'This is a manipulation tactic meant to rush, isolate, or win you over.',
+        SignalGroup.link => 'Links can lead to look-alike sites built to steal whatever you type.',
+        SignalGroup.context => 'Details like this rarely show up in real offers or messages.',
+      };
+
+  String get simpleWhy => switch (this) {
+        SignalGroup.identity => 'This information can be used to steal from you.',
+        SignalGroup.financial => 'Money sent this way is very hard to get back.',
+        SignalGroup.impersonation => 'They pretend to be someone you trust.',
+        SignalGroup.urgency => 'They want you to act fast, before you check.',
+        SignalGroup.source => 'It did not come from where it says.',
+        SignalGroup.behavioral => 'This is a trick to rush or fool you.',
+        SignalGroup.link => 'The link could take you to a fake website.',
+        SignalGroup.context => 'Real offers do not usually look like this.',
+      };
+
   String get simpleLabel => switch (this) {
         SignalGroup.identity => 'Your private information',
         SignalGroup.financial => 'Your money',
@@ -129,8 +152,15 @@ class SignalDefinition {
 /// Where a detected signal came from — shown for transparency.
 enum SignalSource { answers, text, link, ai, reputation }
 
+/// Where in the checked text a warning sign was found (character offsets).
+class MatchSpan {
+  const MatchSpan(this.start, this.end);
+  final int start;
+  final int end;
+}
+
 class DetectedSignal {
-  const DetectedSignal({required this.definition, required this.source, this.evidence});
+  const DetectedSignal({required this.definition, required this.source, this.evidence, this.spans = const []});
 
   final SignalDefinition definition;
   final SignalSource source;
@@ -138,7 +168,13 @@ class DetectedSignal {
   /// Short quote or explanation of what triggered it (may be null).
   final String? evidence;
 
+  /// Exact places in the checked text that triggered this sign (for highlighting).
+  final List<MatchSpan> spans;
+
   String get id => definition.id;
+
+  DetectedSignal withSpans(List<MatchSpan> newSpans) =>
+      DetectedSignal(definition: definition, source: source, evidence: evidence, spans: newSpans);
 }
 
 class GroupBreakdown {
@@ -181,6 +217,9 @@ class Assessment {
     this.reassuringFactors = const [],
     this.redactionCount = 0,
     this.isDemoExample = false,
+    this.checkedText = '',
+    this.knownFacts = const [],
+    this.unknowns = const [],
   });
 
   final String id;
@@ -214,6 +253,49 @@ class Assessment {
   /// How many sensitive items were redacted before any AI call.
   final int redactionCount;
   final bool isDemoExample;
+
+  /// The text that was analyzed — kept in memory only so the Deception
+  /// Breakdown can highlight it. NEVER saved to history or sent anywhere.
+  final String checkedText;
+
+  /// "What we can see" and "What we can't confirm" (honest uncertainty).
+  final List<String> knownFacts;
+  final List<String> unknowns;
+
+  Assessment copyWith({
+    String? summary,
+    String? checkedText,
+    List<String>? knownFacts,
+    List<String>? unknowns,
+  }) =>
+      Assessment(
+        id: id,
+        createdAt: createdAt,
+        categoryId: categoryId,
+        title: title,
+        score: score,
+        level: level,
+        confidence: confidence,
+        headline: headline,
+        summary: summary ?? this.summary,
+        reasons: reasons,
+        simpleReasons: simpleReasons,
+        actions: actions,
+        simpleActions: simpleActions,
+        breakdown: breakdown,
+        signals: signals,
+        scoreSteps: scoreSteps,
+        aiUsed: aiUsed,
+        isDemoAi: isDemoAi,
+        aiUnavailableReason: aiUnavailableReason,
+        additionalConcerns: additionalConcerns,
+        reassuringFactors: reassuringFactors,
+        redactionCount: redactionCount,
+        isDemoExample: isDemoExample,
+        checkedText: checkedText ?? this.checkedText,
+        knownFacts: knownFacts ?? this.knownFacts,
+        unknowns: unknowns ?? this.unknowns,
+      );
 }
 
 /// The standard disclaimer — shown on EVERY assessment.
