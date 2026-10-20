@@ -14,6 +14,7 @@ class ComboRule {
     required this.floor,
     this.allOf = const {},
     this.anyOf = const {},
+    this.alsoAnyOf = const {},
     this.onlyCategories,
   });
   final String label;
@@ -21,16 +22,25 @@ class ComboRule {
   final Set<String> allOf;
   final Set<String> anyOf;
 
+  /// A second "at least one of" group (e.g. any money ask AND any pressure).
+  final Set<String> alsoAnyOf;
+
   /// If set, the rule only applies in these categories.
   final Set<String>? onlyCategories;
 
   bool matches(Set<String> ids, [String? categoryId]) =>
       (onlyCategories == null || onlyCategories!.contains(categoryId)) &&
       ids.containsAll(allOf) &&
-      (anyOf.isEmpty || anyOf.any(ids.contains));
+      (anyOf.isEmpty || anyOf.any(ids.contains)) &&
+      (alsoAnyOf.isEmpty || alsoAnyOf.any(ids.contains));
 }
 
 const _moneyAsks = {'payment_requested', 'gift_cards', 'crypto_requested', 'wire_transfer'};
+const _linkOrPay = {
+  'click_link', 'shortened_url', 'lookalike_domain', 'unusual_tld', 'suspicious_url_structure', 'insecure_http',
+  'ip_address_url', 'punycode_domain', 'known_malicious_url', 'payment_requested', 'card_info_requested', 'login_requested',
+};
+const _pressure = {'urgency', 'legal_threat', 'arrest_threat', 'emotional_pressure'};
 const _sensitiveFinancial = {'card_info_requested', 'bank_info_requested', 'ssn_requested', 'password_requested'};
 
 const List<ComboRule> kComboRules = [
@@ -60,6 +70,24 @@ const List<ComboRule> kComboRules = [
   ComboRule(label: 'A "family member" asking you to keep it secret', allOf: {'family_impersonation', 'secrecy'}, floor: 75),
   ComboRule(label: 'Investment pitch from an online relationship', allOf: {'investment_request'}, anyOf: {'fast_affection', 'remote_story', 'avoids_verification'}, floor: 75),
   ComboRule(label: 'Money requested by someone who avoids verification', allOf: {'avoids_verification'}, anyOf: _moneyAsks, floor: 75),
+  // Common scam scripts
+  ComboRule(label: 'Toll, ticket, or DMV notice with a link or payment demand', allOf: {'toll_ticket_notice'}, anyOf: {..._linkOrPay, 'legal_threat', 'urgency'}, floor: 75),
+  ComboRule(label: 'Delivery problem notice with a link or fee', allOf: {'delivery_notice'}, anyOf: _linkOrPay, floor: 70),
+  ComboRule(label: 'Account alert that pushes you to log in, click, or give details', allOf: {'account_alert'}, anyOf: {..._linkOrPay, 'verification_code_requested', 'password_requested', 'approve_request'}, floor: 70),
+  ComboRule(label: 'Prize or "you were selected" message asking for money or details', allOf: {'prize_claim'}, anyOf: {..._moneyAsks, ..._sensitiveFinancial, 'bulk_personal_info', 'click_link'}, floor: 80),
+  ComboRule(label: 'Prize or "you were selected" message', allOf: {'prize_claim'}, floor: 40),
+  ComboRule(label: 'Guaranteed or risk-free investment returns', allOf: {'investment_request'}, floor: 65),
+  ComboRule(label: 'A "family member" with a new number asking for money', allOf: {'family_impersonation'}, anyOf: {..._moneyAsks, 'emergency_claim'}, floor: 80),
+  ComboRule(label: 'Unrealistic pay plus a move to a private chat app', allOf: {'unrealistic_pay', 'platform_move'}, floor: 65),
+  ComboRule(label: 'Asked to move money to a "safe" account', allOf: {'safe_account'}, floor: 85),
+  ComboRule(label: 'Asked to approve a sign-in request', allOf: {'approve_request'}, floor: 75),
+  ComboRule(label: 'Tech-support scare with remote access', allOf: {'tech_support', 'remote_access'}, floor: 90),
+  ComboRule(label: 'Tech-support or "infected computer" warning', allOf: {'tech_support'}, floor: 60),
+  ComboRule(label: '"Sent you money by mistake" request', allOf: {'mistaken_payment'}, floor: 70),
+  ComboRule(label: 'A "quick favor" involving gift cards or money', allOf: {'favor_request'}, anyOf: _moneyAsks, floor: 85),
+  ComboRule(label: 'A request for money combined with pressure or threats', anyOf: _moneyAsks, alsoAnyOf: _pressure, floor: 60),
+  ComboRule(label: 'Secrecy combined with a request for money', allOf: {'secrecy'}, anyOf: _moneyAsks, floor: 80),
+  ComboRule(label: 'Bank or agency impersonation combined with pressure', anyOf: {'bank_impersonation', 'government_impersonation', 'account_alert'}, alsoAnyOf: _pressure, floor: 55),
   // Youth safety
   ComboRule(label: 'Sexual or inappropriate content involving a young person', allOf: {'youth_sexual_content'}, floor: 90),
   ComboRule(label: 'Threats or blackmail', allOf: {'youth_threats'}, floor: 80),
@@ -72,15 +100,18 @@ const List<ComboRule> kComboRules = [
 ///
 /// Scoring model (all visible in "How was this calculated?"):
 ///   1. Rule-detected signals add their FIXED catalog weight.
-///   2. AI-only signals (validated against the catalog) add 70% weight.
-///   3. The AI's overall estimate can nudge the score by at most ±12.
+///   2. AI-only signals (validated against the catalog) add their full weight too.
+///   3. The AI's overall estimate can raise the score by up to 20, or lower it
+///      by at most 8 (TruthArmor leans toward caution).
 ///   4. Known high-risk combinations set a minimum score (floor).
+///   5. Several different warning signs together also set a minimum.
 /// A single AI-generated number can never decide the result.
 class RiskScorer {
   const RiskScorer();
 
-  static const double aiSignalFactor = 0.7;
-  static const int maxAiAdjustment = 12;
+  static const double aiSignalFactor = 1.0;
+  static const int maxAiAdjustment = 20;
+  static const int maxAiReduction = 8;
 
   Assessment score({
     required String id,
@@ -133,7 +164,7 @@ class RiskScorer {
     final realAi = ai != null && !ai.isDemo;
     var adjustment = 0;
     if (ai != null && realAi) {
-      adjustment = ((ai.riskEstimate - base) * 0.2).round().clamp(-maxAiAdjustment, maxAiAdjustment);
+      adjustment = ((ai.riskEstimate - base) * 0.3).round().clamp(-maxAiReduction, maxAiAdjustment);
     }
 
     final ids = signals.keys.toSet();
@@ -141,7 +172,16 @@ class RiskScorer {
     for (final c in kComboRules) {
       if (c.matches(ids, category.id) && (topCombo == null || c.floor > topCombo.floor)) topCombo = c;
     }
-    final floor = topCombo?.floor ?? 0;
+    var floor = topCombo?.floor ?? 0;
+    var floorLabel = topCombo?.label;
+
+    // Several different warning signs together (ignoring very weak ones).
+    final meaningful = signals.values.where((s) => s.definition.weight >= 10).length;
+    final countFloor = meaningful >= 4 ? 70 : meaningful >= 3 ? 50 : 0;
+    if (countFloor > floor) {
+      floor = countFloor;
+      floorLabel = '$meaningful different warning signs together';
+    }
 
     final adjusted = (base + adjustment).clamp(0, 100);
     final finalScore = math.max(adjusted, floor);
@@ -229,10 +269,10 @@ class RiskScorer {
 
     final steps = <ScoreStep>[
       ScoreStep('Built-in safety rules (${signals.length - aiOnly.length} signals)', '+$rulePoints'),
-      if (ai != null) ScoreStep('AI-identified patterns (${aiOnly.length}, counted at 70%)', '+$aiPoints'),
+      if (ai != null) ScoreStep('AI-identified patterns (${aiOnly.length})', '+$aiPoints'),
       if (base < rulePoints + aiPoints) const ScoreStep('Capped at maximum', '100'),
-      if (realAi) ScoreStep('AI context adjustment (limited to ±$maxAiAdjustment)', adjustment >= 0 ? '+$adjustment' : '$adjustment'),
-      if (topCombo != null && floor > adjusted) ScoreStep('Minimum for: ${topCombo.label}', '$floor'),
+      if (realAi) ScoreStep('AI context adjustment (limited to +$maxAiAdjustment / -$maxAiReduction)', adjustment >= 0 ? '+$adjustment' : '$adjustment'),
+      if (floorLabel != null && floor > adjusted) ScoreStep('Minimum for: $floorLabel', '$floor'),
       ScoreStep('Final score', '$finalScore / 100'),
     ];
 

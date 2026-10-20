@@ -19,7 +19,7 @@ TruthArmor provides a **pattern-based risk assessment**. It clearly tells users:
 | Green is **"Low Risk — No major warning signs detected"**, never "Safe" | `models/risk.dart` |
 | The disclaimer appears on **every** assessment | `DisclaimerBox` on the results screen |
 | Risk level and **analysis confidence** are separate | `RiskScorer._confidence` |
-| The AI can't decide the result alone: fixed weights, AI-only signals at 70%, ±12 cap, combination floors | `services/risk/risk_scorer.dart` |
+| The AI can't decide the result alone: fixed weights, AI limited to catalog signals, +20/−8 adjustment cap, combination floors | `services/risk/risk_scorer.dart` |
 | The AI may only report **known** signal ids; code-only link signals can't come from AI | `functions/src/signals.ts`, `handler.ts` |
 | Careful wording is enforced on the server ("is safe", "is a predator", "definitely a scam" are rewritten) | `functions/src/handler.ts` (`soften`) |
 | Prompt-injection defense: message content is wrapped as `<untrusted_content>` and treated as data | `functions/src/prompt.ts` |

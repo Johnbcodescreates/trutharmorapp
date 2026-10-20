@@ -127,8 +127,11 @@ class RuleEngine {
         add('bulk_personal_info', SignalSource.text, 'Asks for: ${items.join(', ')}');
       }
 
-      // Pay far above normal for the work.
-      final pay = highestHourlyPay(text);
+      // Pay far above normal for the work (hourly, or daily converted to hourly).
+      final daily = highestDailyPay(text);
+      final hourlyPay = highestHourlyPay(text);
+      final pay = [if (hourlyPay != null) hourlyPay, if (daily != null) daily / 8]
+          .fold<double?>(null, (a, b) => a == null || b > a ? b : a);
       if (pay != null) {
         final noExperience = RegExp(r'\b(no experience|high school|no degree|entry[- ]level|work from home|remote)\b',
                 caseSensitive: false)
@@ -230,6 +233,21 @@ class RuleEngine {
     r'\$\s?(\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\s*(?:/|per|an|a)\s*(?:hr|hour)\b',
     caseSensitive: false,
   );
+
+  static final RegExp _daily = RegExp(
+    r'\$\s?(\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\s*(?:/|per|an|a)\s*day\b',
+    caseSensitive: false,
+  );
+
+  /// Highest daily pay mentioned, e.g. "\$500 a day" -> 500.
+  static double? highestDailyPay(String text) {
+    double? best;
+    for (final m in _daily.allMatches(text)) {
+      final v = double.tryParse(m.group(1)!.replaceAll(',', ''));
+      if (v != null && (best == null || v > best)) best = v;
+    }
+    return best;
+  }
 
   /// Highest hourly pay mentioned, e.g. "\$1,000/hr" -> 1000.
   static double? highestHourlyPay(String text) {

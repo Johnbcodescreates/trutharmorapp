@@ -3,11 +3,12 @@
 enum RiskLevel { low, caution, elevated, high }
 
 extension RiskLevelX on RiskLevel {
-  /// Score bands (0-100): 0-24 low, 25-49 caution, 50-74 elevated, 75-100 high.
+  /// Score bands (0-100): 0-19 low, 20-39 caution, 40-64 elevated, 65-100 high.
+  /// Set deliberately on the cautious side: a few clear warning signs = High.
   static RiskLevel fromScore(int score) {
-    if (score >= 75) return RiskLevel.high;
-    if (score >= 50) return RiskLevel.elevated;
-    if (score >= 25) return RiskLevel.caution;
+    if (score >= 65) return RiskLevel.high;
+    if (score >= 40) return RiskLevel.elevated;
+    if (score >= 20) return RiskLevel.caution;
     return RiskLevel.low;
   }
 

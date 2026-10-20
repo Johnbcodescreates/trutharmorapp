@@ -23,6 +23,8 @@ final Map<String, List<RegExp>> kTextPatterns = {
     _p(r'\bpassword\b.{0,20}\b(to verify|to confirm|for verification)\b'),
   ],
   'verification_code_requested': [
+    _p(r'\bread (me )?(the|that|your) code\b'),
+    _p(r'\bcode (we|i) (just )?sent\b'),
     _p(r'\b(verification|security|one[- ]time|confirmation|access|6[- ]digit|authentication) code\b'),
     _p(r'\b(read|send|tell|give|share|forward)\b.{0,25}\bcode\b'),
     _p(r'\botp\b'),
@@ -48,6 +50,7 @@ final Map<String, List<RegExp>> kTextPatterns = {
     _p(r'\bdirect deposit (form|info|details|information)\b'),
   ],
   'card_info_requested': [
+    _p(r'\bupdate (your )?(payment|billing) (info|information|details|method)\b'),
     _p(r'\b(credit|debit|bank|atm) ?card ?(info|information|details|number|#|no\.?|pin)\b'),
     _p(r'\b(send|provide|share|give|submit|enter|confirm|verify|update|text|email|reply with)\b.{0,80}\b(credit|debit) ?card\b'),
     _p(r'\b(cvv|cvc|security code|expiration date)\b'),
@@ -55,6 +58,8 @@ final Map<String, List<RegExp>> kTextPatterns = {
     _p(r'\b(verify|confirm|provide|enter|update)\b.{0,25}\b(card number|cvv|pin)\b'),
   ],
   'payment_requested': [
+    _p(r'\b(send|transfer|wire|lend|loan|give) (me|us) (\$\s?\d|money|cash|some money|funds)\b'),
+    _p(r'\b(can|could|would) you (please )?(send|pay|transfer|lend|loan|wire)\b.{0,30}(\$\s?\d|money|cash|funds)'),
     _p(r'\b(pay|payment|fee|deposit)\b.{0,30}\b(required|due|now|today|immediately|to (proceed|continue|release|avoid))\b'),
     _p(r'\b(processing|registration|training|background check|release|customs|clearance|redelivery|delivery|shipping|toll|unpaid toll|activation|verification) fee\b'),
     _p(r'\bpay (a |the )?(small )?\$\s?\d'),
@@ -72,7 +77,6 @@ final Map<String, List<RegExp>> kTextPatterns = {
   'wire_transfer': [
     _p(r'\bwire (transfer|the money|funds)\b'),
     _p(r'\b(zelle|venmo|cash ?app|western union|moneygram)\b'),
-    _p(r'\bsafe (account|wallet)\b'),
   ],
   'check_overpayment': [
     _p(r'\b(deposit|cash|mobile deposit)\b.{0,40}\bcheck\b.{0,80}\b(send|return|refund|purchase|buy|vendor|zelle|remaining)\b'),
@@ -89,12 +93,16 @@ final Map<String, List<RegExp>> kTextPatterns = {
     _p(r'\bpayment (processing|coordinator) (agent|assistant)\b'),
   ],
   'investment_request': [
+    _p(r'\bguaranteed (returns?|profits?|income|gains?)\b'),
+    _p(r'\brisk[- ]free (investment|returns?|profits?|income)\b'),
+    _p(r'\bdouble your (money|investment|crypto)\b'),
     _p(r'\b(guaranteed returns?|double your money|trading platform|investment (opportunity|platform|account)|invest (with|through) me|crypto (trading|mining) (platform|opportunity))\b'),
   ],
   'too_good_to_be_true': [
+    _p(r'\b(earn|make) (money |cash |\$\s?\d[\d,]* )?(from home|online)\b'),
+    _p(r'\bno experience (needed|required|necessary)\b.{0,60}\b(earn|make|\$)'),
     _p(r'\b(no experience (needed|required))\b.{0,60}\$\s?\d{3,}'),
     _p(r'\$\s?\d{2,3}(\.\d{2})?\s?(/|per )\s?(hr|hour)\b.{0,40}\b(no experience|data entry|flexible)\b'),
-    _p(r"\byou('ve| have)? (won|been selected)\b"),
     _p(r'\b(guaranteed|risk[- ]free)\b.{0,20}\b(income|returns?|profit|money)\b'),
   ],
 
@@ -111,11 +119,19 @@ final Map<String, List<RegExp>> kTextPatterns = {
     _p(r'\b(warrant|arrest(ed)?|jail|police (will|are)|law enforcement will|avoid arrest|taken into custody)\b'),
   ],
   'legal_threat': [
+    _p(r'\b(interruption|loss|termination|suspension) of (your )?(service|access|account|benefits)\b'),
+    _p(r'\b(avoid|prevent|face) (a )?(suspension|deactivation|penalt(y|ies)|late fees?|collections?|fines?)\b'),
+    _p(r'\b(licen[cs]e|registration|account) (will|may|could) be (suspended|revoked|deactivated|closed|locked|terminated)\b'),
+    _p(r'\b(sent|referred) to collections\b'),
     _p(r'\b(legal action|lawsuit|sued|court action|account (will be )?(closed|terminated|suspended)|benefits (will be )?(suspended|stopped))\b'),
   ],
 
   // Urgency / pressure
   'urgency': [
+    _p(r'\b(final|last) (notice|reminder|warning|attempt)\b'),
+    _p(r'\bwithin (\d+|one|two|twenty[- ]four|forty[- ]eight) (hours?|hrs?|minutes?|mins?|days?)\b'),
+    _p(r'\b(limited time|act fast|respond now|immediate action|action required|time[- ]sensitive|before it.?s too late|expires? (tonight|at midnight))\b'),
+    _p(r'\bbefore (you )?(check|talk|speak) (with|to) (anyone|someone|your)\b'),
     _p(r'\b(urgent(ly)?|immediately|right away|right now|hurry|act now|asap|within (24|48|12|2) hours|today only|final (notice|warning)|last chance|expires? (today|soon|in))\b'),
     _p(r"\b(don'?t|do not) (wait|delay|hang up)\b"),
   ],
@@ -126,6 +142,66 @@ final Map<String, List<RegExp>> kTextPatterns = {
     _p(r'\b(accident|hospital|emergency|stranded|bail|lawyer fees?|medical bills?|surgery|stuck at (the )?(airport|customs))\b'),
   ],
 
+  // Common scam scripts
+  'account_alert': [
+    _p(r'\b(unusual|suspicious|unauthori[sz]ed|irregular) (activity|sign-?ins?|log-?ins?|access|charges?|transactions?|purchases?)\b'),
+    _p(r'\baccount (problem|issue|alert|notice|on hold|(has been |is )(limited|restricted|flagged|locked|on hold|disabled))\b'),
+    _p(r'\b(we|we.?ve|we have) (detected|noticed|identified)\b.{0,40}\b(unusual|suspicious|problem|issue|unauthori[sz]ed)\b'),
+  ],
+  'toll_ticket_notice': [
+    _p(r'\b(unpaid|outstanding|overdue|pending) (tolls?|toll (charges?|balance|fees?))\b'),
+    _p(r'\btoll (violation|balance|notice|charges?|fee|invoice|bill)\b'),
+    _p(r'\b(e-?zpass|sunpass|fastrak|txtag|peach pass|i-?pass|the toll ?roads|nc quick pass|e-?zdrive)\b'),
+    _p(r'\b(traffic|parking|speeding|camera) (ticket|violation|citation|fine)\b'),
+    _p(r'\b(dmv|department of motor vehicles|motor vehicle (department|services))\b'),
+  ],
+  'delivery_notice': [
+    _p(r'\b(package|parcel|shipment|delivery|order)\b.{0,40}\b(failed|unsuccessful|on hold|held|could not be delivered|couldn.?t be delivered|undeliverable|returned to sender)\b'),
+    _p(r'\b(usps|ups|fedex|dhl|royal mail|canada post|post office|mail carrier|postal service)\b.{0,80}\b(reschedule|redeliver(y)?|update|confirm|track|address|fee)\b'),
+    _p(r'\b(unable|failed|attempted) to deliver\b|\bdelivery attempt\b|\bredelivery\b'),
+    _p(r'\b(address|zip code|postal code) (is |was )?(incomplete|incorrect|invalid|missing)\b'),
+  ],
+  'prize_claim': [
+    _p(r'\bcongratulations\b.{0,80}\b(won|win|selected|chosen|winner|prize|reward|gift|eligible)\b'),
+    _p(r"\byou('ve| have)? (won|been selected|been chosen|been picked)\b"),
+    _p(r'\bclaim your (prize|reward|gift|winnings|refund|bonus|cash)\b'),
+    _p(r"\b(lottery|sweepstakes|jackpot|giveaway|raffle)\b.{0,40}\b(winner|won|prize)\b|\byou('re| are) (our|a|the) (lucky )?winner\b"),
+    _p(r'\b(small|processing|release|handling|shipping) fee to (claim|receive|release|get)\b'),
+  ],
+  'generic_greeting': [
+    _p(r'\bdear (sir|madam|sir or madam|sir/madam|customer|valued customer|user|client|account holder|member|beneficiary|friend)\b'),
+    _p(r'\b(would you )?kindly\b|\bdo the needful\b'),
+  ],
+  'click_link': [
+    _p(r'\b(click|tap|follow|visit|open|use)(ing)? (on )?(the |this |our |below )?(link|here|url|button)\b'),
+    _p(r'\b(link|button) below\b'),
+  ],
+  'approve_request': [
+    _p(r'\b(tap|click|press|hit|select) .?approve\b'),
+    _p(r'\b(tap|click|press|hit|select) .?(allow|yes|accept)\b.{0,60}\b(sign-?in|log-?in|verify|confirm (it.?s|that it.?s) you|security|account)\b'),
+    _p(r'\bapprove (the|this|that|our) (request|sign-?in|log-?in|notification|prompt|push)\b'),
+  ],
+  'safe_account': [
+    _p(r'\bwithdraw (the |your |all )?(cash|money|funds|savings)\b.{0,60}\b(secure|safe|protect|courier|pick ?up|agent)\b'),
+    _p(r'\b(safe|secure|protected|holding|safety) (account|wallet)\b'),
+    _p(r'\bmove (it|them|your (money|funds|savings|balance))\b.{0,40}\b(safe|secure|protected|new) (account|place|location)\b'),
+    _p(r'\byour (money|funds|savings|account) (is|are) (not safe|at risk|in danger)\b'),
+  ],
+  'tech_support': [
+    _p(r'\b(tech(nical)? support|microsoft support|apple support|windows (support|defender)|geek squad)\b'),
+    _p(r'\b(computer|device|pc|laptop|phone|system) (is|has been|was|may be) (infected|hacked|compromised|locked)\b'),
+    _p(r'\b(virus|malware|trojan|spyware|ransomware) (detected|found|alert|warning)\b'),
+  ],
+  'mistaken_payment': [
+    _p(r'\b(sent|transferred|deposited|paid) (money|funds|it|\$\s?\d[\d,]*|you money)\b.{0,40}\bby (mistake|accident)\b'),
+    _p(r'\b(accidentally|mistakenly) (sent|transferred|deposited|paid)\b'),
+    _p(r'\bby mistake\b.{0,60}\b(send|return|refund|pay) (it |the money )?back\b'),
+  ],
+  'favor_request': [
+    _p(r'\b(can|could) you do me a (quick |small |big )?favou?r\b'),
+    _p(r'\b(i need|need) a (quick |small )?favou?r\b'),
+  ],
+
   // Source
   'platform_move': [
     _p(r'\b(whatsapp|telegram|signal app|wickr|google chat|text me at|add me on)\b'),
@@ -133,9 +209,14 @@ final Map<String, List<RegExp>> kTextPatterns = {
 
   // Behavioral
   'secrecy': [
+    _p(r'\b(stay on the line|do not hang up|don.?t hang up)\b'),
+    _p(r'\b(do not|don.?t) tell (the )?(bank|bank staff|teller|branch|staff|police)\b'),
+    _p(r'\b(bank )?(staff|employees|tellers?) (may|might|could) be (involved|in on it)\b'),
     _p(r"\b(keep (this|it) (between us|secret|confidential|private)|don'?t tell (anyone|mom|dad|my (mom|dad|parents)|grandpa|grandma|your (family|bank|kids|children|spouse))|do not tell (anyone|the bank)|our (little )?secret)\b"),
   ],
   'family_impersonation': [
+    _p(r'\b(hi|hey|hello) (mum|mom|mommy|mama|dad|daddy|papa|grandma|grandpa)\b.{0,60}\b(new (number|phone)|lost my phone|broke my phone)\b'),
+    _p(r'\b(this is|here.?s|heres) my new (number|phone)\b'),
     _p(r"\b(grandma|grandpa|grandmother|grandfather|nana|papa|mom|dad|auntie|uncle)[,!.?]?\s+(hi[,!]?\s+)?it'?s me\b"),
     _p(r"\bit'?s (me|your (grandson|granddaughter|son|daughter|nephew|niece))\b.{0,80}\b(trouble|accident|arrested|jail|hospital|help)\b"),
     _p(r"\b(i|i've|i have) (got )?a new (phone|number)\b|\blost my phone\b"),

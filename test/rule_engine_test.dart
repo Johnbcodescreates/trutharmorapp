@@ -109,7 +109,7 @@ void main() {
       expect(other.signals.map((s) => s.id).where((id) => id.startsWith('youth_')), isEmpty);
     });
 
-    test('AI-only signals count at reduced weight and unknown ids are ignored', () {
+    test('AI-only signals are accepted from the catalog and unknown ids are ignored', () {
       const ai = AiAnalysis(
         summary: 's',
         simpleSummary: 's',

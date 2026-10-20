@@ -198,9 +198,9 @@ class ResultsScreen extends StatelessWidget {
                         ),
                       const SizedBox(height: Gap.sm),
                       Text(
-                        'Signals found by built-in rules count fully. Signals found only by AI count at 70%. '
-                        'The AI\'s overall opinion can only nudge the score a little, and known high-risk combinations '
-                        'set a minimum score.',
+                        'Every warning sign has a fixed number of points. The AI can only report signs from TruthArmor\'s list, '
+                        'and its overall opinion can only move the score a little. Known high-risk combinations — and '
+                        'several warning signs together — set a minimum score.',
                         style: t.bodySmall,
                       ),
                     ],

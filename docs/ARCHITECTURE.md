@@ -105,12 +105,13 @@ Each category is one `ScanCategory` object in `lib/data/categories.dart`:
 
 1. **Signals** come from four sources: your answers, text patterns, link checks, and (in production) the AI
    and link reputation. Every signal is defined in `signal_catalog.dart` with a **fixed weight**.
-2. **Rule-detected** signals add their full weight. **AI-only** signals (validated against the catalog) add 70%.
-3. The AI's overall estimate can nudge the score by **at most ±12** points. Demo AI never adjusts it.
+2. **Rule-detected** and **AI-detected** signals add their catalog weight (the AI may only report ids from the catalog).
+3. The AI's overall estimate can **raise** the score by up to 20 points or **lower** it by at most 8. Demo AI never adjusts it.
 4. **Combination floors** (`kComboRules`) guarantee a minimum score for patterns that are strongly associated
    with scams — e.g. *SSN + bank info* (75), *gift cards + a claimed agency* (85),
    *secrecy + pressure to meet a young person* (85). The AI cannot lower these.
-5. Score → level: 0–24 **Low Risk** · 25–49 **Caution** · 50–74 **Elevated Risk** · 75–100 **High Risk**.
+   Several different warning signs together also set a minimum (3 signs → 50, 4+ signs → 70).
+5. Score → level: 0–19 **Low Risk** · 20–39 **Caution** · 40–64 **Elevated Risk** · 65–100 **High Risk**.
 6. **Analysis confidence** (Low/Moderate/High) is computed separately from how much information was provided,
    whether AI was available, whether AI and rules agree, and how many strong signals were found.
 

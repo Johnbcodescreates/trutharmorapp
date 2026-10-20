@@ -13,6 +13,8 @@ export const ALL_SIGNAL_IDS = [
   "signature_requested", "ownership_change_claim", "attachment_or_download", "remote_access",
   "shortened_url", "ip_address_url", "lookalike_domain", "punycode_domain", "unusual_tld", "insecure_http",
   "suspicious_url_structure", "known_malicious_url",
+  "account_alert", "toll_ticket_notice", "delivery_notice", "prize_claim", "generic_greeting", "click_link",
+  "approve_request", "safe_account", "tech_support", "mistaken_payment", "favor_request",
   "youth_secrecy", "youth_photo_request", "youth_sexual_content", "youth_location_request",
   "youth_personal_info", "youth_platform_move", "youth_meet_pressure", "youth_gifts", "youth_isolation",
   "youth_age_misrepresentation", "youth_flattery", "youth_threats",
