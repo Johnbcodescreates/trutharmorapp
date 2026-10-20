@@ -158,7 +158,7 @@ class _QuickScanScreenState extends State<QuickScanScreen> {
           SensitiveDataNotice(detected: _sensitive),
           const SizedBox(height: Gap.lg),
           WideButton(label: 'Continue', icon: Icons.arrow_forward_rounded, onPressed: hasText ? _continue : null),
-          if (ShareReceiver.instance.isSupported && !widget.shared) ...[
+          if (ShareReceiver.instance.isAvailable && !widget.shared) ...[
             const SizedBox(height: Gap.md),
             Text(
               'Tip: in Messages, Gmail, or Chrome, tap Share → TruthArmor to check something without copying it.',

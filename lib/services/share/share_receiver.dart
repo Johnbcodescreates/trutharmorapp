@@ -54,6 +54,10 @@ class ShareReceiver {
 
   bool get isSupported => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
+  /// True once the Android side has answered (so "Share → TruthArmor" works).
+  bool get isAvailable => _available;
+  bool _available = false;
+
   /// Items shared while the app is already open.
   Stream<SharedItem> get onShare => _controller.stream;
 
@@ -63,10 +67,13 @@ class ShareReceiver {
     if (_pending != null) {
       final p = _pending;
       _pending = null;
+      _available = true;
       return p;
     }
     try {
-      return SharedItem.fromMap(await _channel.invokeMethod<Object?>('getInitialShare'));
+      final raw = await _channel.invokeMethod<Object?>('getInitialShare');
+      _available = true;
+      return SharedItem.fromMap(raw);
     } catch (_) {
       return null; // Older build without the Android side — sharing just isn't available.
     }
