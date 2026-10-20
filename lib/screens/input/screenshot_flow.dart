@@ -39,10 +39,19 @@ class ScreenshotFlow {
       return null;
     }
     if (file == null || !context.mounted) return null; // User cancelled.
+    return readFile(context, file.path);
+  }
 
+  /// Reads the text in an image file that is already on the device
+  /// (for example a screenshot shared to TruthArmor from another app).
+  static Future<String?> readFile(BuildContext context, String path) async {
+    if (!_ocr.isSupported) {
+      _showMessage(context, 'Screenshot reading is not available on this device. Please paste the text instead.');
+      return null;
+    }
     _showProgress(context);
     try {
-      final text = await _ocr.extractText(file.path);
+      final text = await _ocr.extractText(path);
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
       return text;
     } on OcrException catch (e) {

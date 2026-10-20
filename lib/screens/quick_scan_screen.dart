@@ -6,6 +6,7 @@ import '../data/categories.dart';
 import '../models/assessment_draft.dart';
 import '../services/ocr/ocr_service.dart';
 import '../services/privacy/redactor.dart';
+import '../services/share/share_receiver.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
@@ -16,19 +17,26 @@ import 'input/voice_message_screen.dart';
 /// QUICK SCAN — screenshot, photo, pasted text, URL, or message.
 /// TruthArmor suggests a category, and the user confirms it.
 class QuickScanScreen extends StatefulWidget {
-  const QuickScanScreen({super.key});
+  const QuickScanScreen({super.key, this.initialText, this.shared = false});
+
+  /// Text to start with (for example, shared from another app).
+  final String? initialText;
+
+  /// True when the text came from "Share → TruthArmor".
+  final bool shared;
 
   @override
   State<QuickScanScreen> createState() => _QuickScanScreenState();
 }
 
 class _QuickScanScreenState extends State<QuickScanScreen> {
-  final _controller = TextEditingController();
+  late final _controller = TextEditingController(text: widget.initialText ?? '');
   bool _sensitive = false;
 
   @override
   void initState() {
     super.initState();
+    _sensitive = const Redactor().containsSensitiveData(_controller.text);
     _controller.addListener(() {
       setState(() => _sensitive = const Redactor().containsSensitiveData(_controller.text));
     });
@@ -62,6 +70,24 @@ class _QuickScanScreenState extends State<QuickScanScreen> {
       appBar: AppBar(title: const Text('Quick Scan')),
       body: PageBody(
         children: [
+          if (widget.shared) ...[
+            SectionCard(
+              color: const Color(0xFFEAF2FF),
+              child: Row(
+                children: [
+                  const Icon(Icons.ios_share_rounded, color: AppColors.blue),
+                  const SizedBox(width: Gap.sm + 4),
+                  Expanded(
+                    child: Text(
+                      'Shared to TruthArmor. Review the text below, then tap Continue.',
+                      style: t.bodyLarge,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: Gap.lg),
+          ],
           Text('Add what you received', style: t.headlineSmall),
           const SizedBox(height: Gap.xs),
           Text("We'll suggest the right kind of check, and you confirm it.", style: t.bodyLarge),
@@ -132,6 +158,14 @@ class _QuickScanScreenState extends State<QuickScanScreen> {
           SensitiveDataNotice(detected: _sensitive),
           const SizedBox(height: Gap.lg),
           WideButton(label: 'Continue', icon: Icons.arrow_forward_rounded, onPressed: hasText ? _continue : null),
+          if (ShareReceiver.instance.isSupported && !widget.shared) ...[
+            const SizedBox(height: Gap.md),
+            Text(
+              'Tip: in Messages, Gmail, or Chrome, tap Share → TruthArmor to check something without copying it.',
+              style: t.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
     );
