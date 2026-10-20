@@ -9,19 +9,36 @@ import '../rules/rule_engine.dart';
 /// A combination of signals that is so strongly associated with scams that
 /// the score can never drop below [floor] — no matter what the AI says.
 class ComboRule {
-  const ComboRule({required this.label, required this.floor, this.allOf = const {}, this.anyOf = const {}});
+  const ComboRule({
+    required this.label,
+    required this.floor,
+    this.allOf = const {},
+    this.anyOf = const {},
+    this.onlyCategories,
+  });
   final String label;
   final int floor;
   final Set<String> allOf;
   final Set<String> anyOf;
 
-  bool matches(Set<String> ids) =>
-      ids.containsAll(allOf) && (anyOf.isEmpty || anyOf.any(ids.contains));
+  /// If set, the rule only applies in these categories.
+  final Set<String>? onlyCategories;
+
+  bool matches(Set<String> ids, [String? categoryId]) =>
+      (onlyCategories == null || onlyCategories!.contains(categoryId)) &&
+      ids.containsAll(allOf) &&
+      (anyOf.isEmpty || anyOf.any(ids.contains));
 }
 
 const _moneyAsks = {'payment_requested', 'gift_cards', 'crypto_requested', 'wire_transfer'};
+const _sensitiveFinancial = {'card_info_requested', 'bank_info_requested', 'ssn_requested', 'password_requested'};
 
 const List<ComboRule> kComboRules = [
+  ComboRule(label: 'Many personal details requested along with financial information', allOf: {'bulk_personal_info'}, anyOf: _sensitiveFinancial, floor: 90),
+  ComboRule(label: 'Many personal details requested at once', allOf: {'bulk_personal_info'}, floor: 75),
+  ComboRule(label: 'Card and bank details both requested', allOf: {'card_info_requested', 'bank_info_requested'}, floor: 85),
+  ComboRule(label: 'Unrealistic pay combined with requests for sensitive information', allOf: {'unrealistic_pay'}, anyOf: {..._sensitiveFinancial, ..._moneyAsks, 'bulk_personal_info', 'id_document_requested'}, floor: 90),
+  ComboRule(label: 'A job asking for credit or debit card details', allOf: {'card_info_requested'}, onlyCategories: {'job'}, floor: 85),
   ComboRule(label: 'SSN and banking information both requested', allOf: {'ssn_requested', 'bank_info_requested'}, floor: 75),
   ComboRule(label: 'SSN requested together with a payment', allOf: {'ssn_requested', 'payment_requested'}, floor: 75),
   ComboRule(label: 'Gift-card payment demanded', allOf: {'gift_cards'}, floor: 60),
@@ -122,7 +139,7 @@ class RiskScorer {
     final ids = signals.keys.toSet();
     ComboRule? topCombo;
     for (final c in kComboRules) {
-      if (c.matches(ids) && (topCombo == null || c.floor > topCombo.floor)) topCombo = c;
+      if (c.matches(ids, category.id) && (topCombo == null || c.floor > topCombo.floor)) topCombo = c;
     }
     final floor = topCombo?.floor ?? 0;
 

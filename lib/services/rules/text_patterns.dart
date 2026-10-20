@@ -32,7 +32,7 @@ final Map<String, List<RegExp>> kTextPatterns = {
     _p(r'\b(verify|confirm|update|restore)\b.{0,15}\b(your )?(account|identity|information|details)\b'),
   ],
   'personal_info_requested': [
-    _p(r'\b(date of birth|dob|mother.?s maiden name|home address)\b'),
+    _p(r'\b(date of birth|dob|birth ?date|mother.?s maiden name|home address|mailing address)\b'),
   ],
   'deed_documents_requested': [
     _p(r'\b(copy|send|provide|upload)\b.{0,30}\b(deed|title|ownership (documents|papers|records))\b'),
@@ -41,11 +41,16 @@ final Map<String, List<RegExp>> kTextPatterns = {
 
   // Financial
   'bank_info_requested': [
+    _p(r'\bbank(ing)? ?(account|acct|details|info|information|login|credentials|password)\b'),
+    _p(r'\b(account|routing|acct) (number|#|no\.?)\b'),
     _p(r'\b(bank|checking|savings) (account|details|info|information|login)\b'),
     _p(r'\brouting (number|#)\b'),
     _p(r'\bdirect deposit (form|info|details|information)\b'),
   ],
   'card_info_requested': [
+    _p(r'\b(credit|debit|bank|atm) ?card ?(info|information|details|number|#|no\.?|pin)\b'),
+    _p(r'\b(send|provide|share|give|submit|enter|confirm|verify|update|text|email|reply with)\b.{0,80}\b(credit|debit) ?card\b'),
+    _p(r'\b(cvv|cvc|security code|expiration date)\b'),
     _p(r'\b(card number|cvv|cvc|security code on|expiration date|debit card|credit card) ?(number|details|info)?\b.{0,25}\b(verify|confirm|provide|enter|update)'),
     _p(r'\b(verify|confirm|provide|enter|update)\b.{0,25}\b(card number|cvv|pin)\b'),
   ],

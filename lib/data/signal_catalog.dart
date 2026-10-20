@@ -62,6 +62,15 @@ const List<SignalDefinition> kSignalCatalog = [
     simpleReason: 'They asked for private details about you',
   ),
   SignalDefinition(
+    id: 'bulk_personal_info',
+    group: SignalGroup.identity,
+    weight: 35,
+    reason: 'Many pieces of personal and financial information were requested at once — enough to steal an identity',
+    simpleReason: 'They asked for lots of your private information all at once. This is how identity theft starts',
+    action: 'Do not send this list of personal details to anyone you have not independently verified',
+    simpleAction: "Don't send them your personal details",
+  ),
+  SignalDefinition(
     id: 'deed_documents_requested',
     group: SignalGroup.identity,
     weight: 20,
@@ -161,6 +170,15 @@ const List<SignalDefinition> kSignalCatalog = [
     simpleReason: 'They want you to invest money with them',
     action: 'Do not invest through someone you met online',
     simpleAction: "Don't invest money through someone you met online",
+  ),
+  SignalDefinition(
+    id: 'unrealistic_pay',
+    group: SignalGroup.financial,
+    weight: 25,
+    reason: 'The pay offered is far above what this kind of work normally pays',
+    simpleReason: 'The pay is way too high to be real',
+    action: 'Treat unrealistically high pay as a red flag, especially for jobs needing no experience',
+    simpleAction: 'Be very careful with jobs that pay way too much',
   ),
   SignalDefinition(
     id: 'too_good_to_be_true',

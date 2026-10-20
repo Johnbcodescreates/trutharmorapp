@@ -120,6 +120,24 @@ class RuleEngine {
         }
       });
       urls.addAll(urlAnalyzer.extractUrls(text));
+
+      // Many personal/financial details requested at once (identity theft kit).
+      final items = requestedPersonalItems(text);
+      if (items.length >= 4) {
+        add('bulk_personal_info', SignalSource.text, 'Asks for: ${items.join(', ')}');
+      }
+
+      // Pay far above normal for the work.
+      final pay = highestHourlyPay(text);
+      if (pay != null) {
+        final noExperience = RegExp(r'\b(no experience|high school|no degree|entry[- ]level|work from home|remote)\b',
+                caseSensitive: false)
+            .hasMatch(text);
+        if (pay >= 100 || (pay >= 45 && noExperience)) {
+          add('unrealistic_pay', SignalSource.text,
+              'Offers about \$${pay.round()}/hour${noExperience ? ' with no experience required' : ''}');
+        }
+      }
     }
 
     // 3) Sender email checks.
@@ -179,6 +197,48 @@ class RuleEngine {
     }
 
     return RuleResult(signals: found.values.toList(), urls: urls.toList());
+  }
+
+  static final RegExp _requestVerb = RegExp(
+    r'\b(send|provide|submit|share|give|enter|fill out|fill in|include|reply with|text us|email us|need|required?|must)\b',
+    caseSensitive: false,
+  );
+
+  static final Map<String, RegExp> _personalItems = {
+    'full name': RegExp(r'\b(full |legal |first and last )?name\b', caseSensitive: false),
+    'date of birth': RegExp(r'\b(date of birth|dob|birth ?date|birthday)\b', caseSensitive: false),
+    'home address': RegExp(r'(?<!e-?mail )\b(home |mailing |street )?address\b', caseSensitive: false),
+    'phone number': RegExp(r'\b(phone|cell|mobile)( ?number)?\b', caseSensitive: false),
+    'email': RegExp(r'\be-?mail( address)?\b', caseSensitive: false),
+    'Social Security number': RegExp(r'\b(ssn|social security)\b', caseSensitive: false),
+    'credit/debit card': RegExp(r'\b(credit|debit|atm) ?card\b|\bcard (number|info|details)\b|\bcvv\b', caseSensitive: false),
+    'bank information': RegExp(r'\bbank(ing)?\b|\b(routing|account) number\b', caseSensitive: false),
+    'ID or license': RegExp(r"\b(driver'?s? licen[cs]e|passport|photo id|state id)\b", caseSensitive: false),
+    'password': RegExp(r'\b(password|passcode|pin)\b', caseSensitive: false),
+  };
+
+  /// Personal details a message asks for (only counted if it is asking).
+  static List<String> requestedPersonalItems(String text) {
+    if (!_requestVerb.hasMatch(text)) return const [];
+    return [
+      for (final e in _personalItems.entries)
+        if (e.value.hasMatch(text)) e.key,
+    ];
+  }
+
+  static final RegExp _hourly = RegExp(
+    r'\$\s?(\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\s*(?:/|per|an|a)\s*(?:hr|hour)\b',
+    caseSensitive: false,
+  );
+
+  /// Highest hourly pay mentioned, e.g. "\$1,000/hr" -> 1000.
+  static double? highestHourlyPay(String text) {
+    double? best;
+    for (final m in _hourly.allMatches(text)) {
+      final v = double.tryParse(m.group(1)!.replaceAll(',', ''));
+      if (v != null && (best == null || v > best)) best = v;
+    }
+    return best;
   }
 
   static String _snippet(String text, int start, int end) {

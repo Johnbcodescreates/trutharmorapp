@@ -65,6 +65,42 @@ void main() {
       expect(a.signals.map((s) => s.id), isNot(contains('fast_affection')));
     });
 
+    test('fake job asking for a list of personal and financial details is HIGH risk', () {
+      const text = r'job pays $1000/hr high school diploma no experience required send name, DOB, email, phone, '
+          'address, credit card info and banking info';
+      for (final category in ['job', 'message', 'ai_message']) {
+        final a = assess(category, text: text);
+        final ids = a.signals.map((s) => s.id).toSet();
+        expect(ids, containsAll(['bulk_personal_info', 'card_info_requested', 'bank_info_requested', 'unrealistic_pay']),
+            reason: category);
+        expect(a.level, RiskLevel.high, reason: category);
+        expect(a.score, greaterThanOrEqualTo(90), reason: category);
+        final identity = a.breakdown.firstWhere((b) => b.group == SignalGroup.identity);
+        final financial = a.breakdown.firstWhere((b) => b.group == SignalGroup.financial);
+        expect(identity.level, GroupLevel.high);
+        expect(financial.level, GroupLevel.high);
+      }
+    });
+
+    test('ordinary messages are not flagged by the new rules', () {
+      for (final text in [
+        'Thanks for signing up! Please confirm your email address to get our newsletter.',
+        'We are hiring a cashier. Pay is \$16/hour. Apply in person with your resume.',
+        'Chase: A purchase of \$45.12 was made with your debit card ending 1234. If this was not you, call the number on the back of your card.',
+      ]) {
+        final a = assess('message', text: text);
+        final ids = a.signals.map((s) => s.id);
+        expect(ids, isNot(contains('bulk_personal_info')), reason: text);
+        expect(ids, isNot(contains('unrealistic_pay')), reason: text);
+        expect(ids, isNot(contains('card_info_requested')), reason: text);
+      }
+    });
+
+    test('hourly pay parsing', () {
+      expect(RuleEngine.highestHourlyPay(r'Earn $1,000/hr or $25 per hour'), 1000);
+      expect(RuleEngine.highestHourlyPay('no pay listed'), isNull);
+    });
+
     test('youth signals only apply in the youth category', () {
       const text = "don't tell your parents, add me on snap";
       final youth = assess('youth', text: text);
