@@ -36,7 +36,7 @@ class _VoiceMessageScreenState extends State<VoiceMessageScreen> {
 
     FilePickerResult? picked;
     try {
-      picked = await FilePicker.platform.pickFiles(
+      picked = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: TranscriptionService.mimeByExtension.keys.toList(),
         withData: true,

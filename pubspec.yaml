@@ -19,7 +19,7 @@ dependencies:
   # On-device OCR (Android + iOS). Text never leaves the phone during OCR.
   google_mlkit_text_recognition: ^0.15.0
   # Choose a voice-message audio file (works on web, Android, and iOS).
-  file_picker: ^8.0.0
+  file_picker: ^11.0.2
   # Browser APIs, used to run Tesseract.js OCR in the web version.
   web: ^1.1.0
   # Stores settings + scan-history METADATA only (never message content).
