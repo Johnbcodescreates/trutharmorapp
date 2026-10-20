@@ -1,4 +1,6 @@
-import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data';
+
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -34,33 +36,44 @@ class _VoiceMessageScreenState extends State<VoiceMessageScreen> {
     setState(() => _error = null);
     final service = context.read<TranscriptionService>();
 
-    FilePickerResult? picked;
+    XFile? file;
     try {
-      picked = await FilePicker.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: TranscriptionService.mimeByExtension.keys.toList(),
-        withData: true,
-      );
+      file = await openFile(acceptedTypeGroups: [
+        // Not const: keeps compatibility across file_selector versions.
+        XTypeGroup(
+          label: 'Voice recordings',
+          extensions: ['mp3', 'mpeg', 'mpga', 'm4a', 'wav', 'mp4', 'webm'],
+          mimeTypes: ['audio/mpeg', 'audio/mp4', 'audio/x-m4a', 'audio/wav', 'audio/x-wav', 'video/mp4', 'audio/webm'],
+          uniformTypeIdentifiers: ['public.audio', 'public.mpeg-4-audio', 'public.mp3', 'com.microsoft.waveform-audio'],
+        ),
+      ]);
     } catch (_) {
       setState(() => _error = "We couldn't open your files. Please try again.");
       return;
     }
-    if (picked == null || picked.files.isEmpty || !mounted) return; // cancelled
+    if (file == null || !mounted) return; // cancelled
 
-    final file = picked.files.first;
-    final ext = (file.extension ?? file.name.split('.').last).toLowerCase();
+    final ext = file.name.contains('.') ? file.name.split('.').last.toLowerCase() : '';
     final mime = TranscriptionService.mimeByExtension[ext];
-    final bytes = file.bytes;
     if (mime == null) {
       setState(() => _error = 'Please choose an MP3, M4A, WAV, MP4, or WEBM recording.');
       return;
     }
-    if (bytes == null || bytes.isEmpty) {
-      setState(() => _error = "We couldn't read that file. Please try another recording.");
+
+    Uint8List? bytes;
+    try {
+      if (await file.length() > TranscriptionService.maxBytes) {
+        if (mounted) setState(() => _error = 'This recording is too large. Please use a file under 20 MB.');
+        return;
+      }
+      bytes = await file.readAsBytes();
+    } catch (_) {
+      if (mounted) setState(() => _error = "We couldn't read that file. Please try another recording.");
       return;
     }
-    if (bytes.length > TranscriptionService.maxBytes) {
-      setState(() => _error = 'This recording is too large. Please use a file under 20 MB.');
+    if (!mounted) return;
+    if (bytes == null || bytes.isEmpty) {
+      setState(() => _error = "We couldn't read that file. Please try another recording.");
       return;
     }
 
